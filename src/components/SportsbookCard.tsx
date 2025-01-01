@@ -2,6 +2,15 @@ import { Flag } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Sportsbook } from "@/types/sportsbook";
 
+// Function to convert country code to flag emoji
+const getCountryFlag = (countryCode: string) => {
+  const codePoints = countryCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  return String.fromCodePoint(...codePoints);
+};
+
 export const SportsbookCard = ({
   Name,
   Description,
@@ -46,7 +55,9 @@ export const SportsbookCard = ({
               className="flex items-center justify-between"
             >
               <div className="flex items-center gap-2">
-                <Flag className="h-4 w-4" />
+                <span className="text-xl" role="img" aria-label={`Flag of ${country.countryName}`}>
+                  {getCountryFlag(country.countryCode)}
+                </span>
                 <span className="text-sm">{country.countryName}</span>
               </div>
               <span className="text-sm font-medium">
