@@ -5,6 +5,10 @@ import { marked } from "marked";
 import sportsbooks from "../../public/sportsbooks.json";
 import { slugify } from "@/lib/utils";
 import { useMemo } from "react";
+import { LineChart } from "@/components/LineChart";
+import { PieChart } from "@/components/PieChart";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function SportsbookDetails() {
   const { slug } = useParams();
@@ -55,51 +59,119 @@ export default function SportsbookDetails() {
   }
 
   const latestTraffic = Number(sportsbook["estimatedMonthlyVisits/2024-11-01"]) || 0;
+  
+  // Prepare traffic data for the line chart
+  const trafficData = [
+    {
+      date: "Sep 2024",
+      visits: Number(sportsbook["estimatedMonthlyVisits/2024-09-01"]) || 0
+    },
+    {
+      date: "Oct 2024",
+      visits: Number(sportsbook["estimatedMonthlyVisits/2024-10-01"]) || 0
+    },
+    {
+      date: "Nov 2024",
+      visits: latestTraffic
+    }
+  ];
+
+  // Prepare top countries data for the pie chart
+  const topCountriesData = Array.from({ length: 5 }, (_, i) => ({
+    country: sportsbook[`topCountries/${i}/countryName`] as string,
+    share: Number(sportsbook[`topCountries/${i}/visitsShare`]) || 0
+  })).filter(country => country.country && country.share > 0);
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-6xl mx-auto">
+        {/* Header Section */}
         <Card className="p-6 mb-6">
           <div className="flex items-center gap-6 mb-6">
             {sportsbook.LogoIcon && (
               <img 
                 src={sportsbook.LogoIcon} 
                 alt={`${sportsbook.Name} logo`}
-                className="w-16 h-16 object-contain"
+                className="w-20 h-20 object-contain rounded-lg shadow-sm"
               />
             )}
-            <div>
-              <h1 className="text-3xl font-bold">{sportsbook.Name}</h1>
-              <p className="text-muted-foreground">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold mb-2">{sportsbook.Name}</h1>
+              <p className="text-muted-foreground text-lg">
                 Monthly Visits: {latestTraffic.toLocaleString()}
               </p>
             </div>
+            {sportsbook.URL && (
+              <a
+                href={sportsbook.URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-primary text-primary-foreground px-6 py-3 rounded-md hover:bg-primary/90 transition-colors text-lg font-semibold"
+              >
+                Visit Website
+              </a>
+            )}
           </div>
-          {sportsbook.URL && (
-            <a
-              href={sportsbook.URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors mb-6"
-            >
-              Visit Website
-            </a>
-          )}
         </Card>
 
-        <Card className="p-6">
-          <h2 className="text-2xl font-bold mb-6">About {sportsbook.Name}</h2>
-          {error ? (
-            <div className="prose dark:prose-invert">
-              <p>{sportsbook.Description}</p>
-            </div>
-          ) : (
-            <div 
-              className="prose dark:prose-invert max-w-none"
-              dangerouslySetInnerHTML={{ __html: description || sportsbook.Description }}
-            />
-          )}
-        </Card>
+        {/* Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Sidebar with Stats */}
+          <div className="lg:col-span-1 space-y-6">
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Traffic Insights</h2>
+              <div className="h-[300px]">
+                <LineChart
+                  data={trafficData}
+                  xKey="date"
+                  yKey="visits"
+                  title="Monthly Visits"
+                />
+              </div>
+            </Card>
+
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold mb-4">Top Countries</h2>
+              <div className="h-[300px]">
+                <PieChart
+                  data={topCountriesData}
+                  nameKey="country"
+                  valueKey="share"
+                />
+              </div>
+            </Card>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="lg:col-span-2">
+            <Card className="p-6">
+              <Tabs defaultValue="overview" className="w-full">
+                <TabsList className="mb-6">
+                  <TabsTrigger value="overview">Overview</TabsTrigger>
+                  <TabsTrigger value="details">Full Details</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="overview">
+                  <div className="prose dark:prose-invert max-w-none">
+                    <div dangerouslySetInnerHTML={{ 
+                      __html: description?.split('\n').slice(0, 5).join('\n') || sportsbook.Description 
+                    }} />
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="details">
+                  <ScrollArea className="h-[800px] pr-4">
+                    <div className="prose dark:prose-invert max-w-none">
+                      <div dangerouslySetInnerHTML={{ 
+                        __html: description || sportsbook.Description 
+                      }} />
+                    </div>
+                  </ScrollArea>
+                </TabsContent>
+              </Tabs>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
