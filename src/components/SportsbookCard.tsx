@@ -18,14 +18,19 @@ export const SportsbookCard = ({
   estimatedMonthlyVisits,
   topCountries,
 }: Sportsbook) => {
-  // Get the latest month's visits
-  const latestMonth = Object.keys(estimatedMonthlyVisits).sort().pop() || "";
-  const monthlyVisits = estimatedMonthlyVisits[latestMonth];
+  console.log("SportsbookCard rendering with data:", {
+    Name,
+    estimatedMonthlyVisits,
+    topCountries
+  });
 
-  console.log(`Rendering sportsbook: ${Name}`);
-  console.log(`Latest month: ${latestMonth}`);
-  console.log(`Monthly visits: ${monthlyVisits}`);
-  console.log(`Top countries:`, topCountries);
+  // Safely get the latest month's visits with null checks
+  const monthlyVisits = estimatedMonthlyVisits 
+    ? Object.entries(estimatedMonthlyVisits)
+        .sort(([a], [b]) => b.localeCompare(a))[0]?.[1] ?? 0
+    : 0;
+
+  console.log("Calculated monthly visits:", monthlyVisits);
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -49,7 +54,7 @@ export const SportsbookCard = ({
 
         <div className="space-y-2">
           <h4 className="font-semibold text-sm text-gray-500">Top Countries</h4>
-          {topCountries.map((country) => (
+          {(topCountries || []).map((country) => (
             <div
               key={country.countryCode}
               className="flex items-center justify-between"
