@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Flag } from "lucide-react";
-import { Hero } from "@/components/Hero";
 import { SportsbookCard } from "@/components/SportsbookCard";
 import { Filters } from "@/components/Filters";
 import { Sportsbook } from "@/types/sportsbook";
@@ -14,11 +13,14 @@ import {
 } from "@/components/ui/select";
 
 const fetchSportsbooks = async (): Promise<Sportsbook[]> => {
+  console.log("Fetching sportsbooks...");
   const response = await fetch("/sportsbooks.json");
   if (!response.ok) {
     throw new Error("Failed to fetch sportsbooks");
   }
-  return response.json();
+  const data = await response.json();
+  console.log("Fetched sportsbooks:", data);
+  return data;
 };
 
 const Index = () => {
@@ -30,8 +32,6 @@ const Index = () => {
     queryKey: ["sportsbooks"],
     queryFn: fetchSportsbooks,
   });
-
-  console.log("Fetched sportsbooks:", sportsbooks);
 
   const filteredSportsbooks = sportsbooks
     .filter((book) => {
@@ -45,17 +45,25 @@ const Index = () => {
     })
     .sort((a, b) => {
       if (sortBy === "traffic") {
+        const aLatestMonth = Object.keys(a.estimatedMonthlyVisits).sort().pop() || "";
+        const bLatestMonth = Object.keys(b.estimatedMonthlyVisits).sort().pop() || "";
         return (
-          b.estimatedMonthlyVisits[
-            Object.keys(b.estimatedMonthlyVisits)[0]
-          ] -
-          a.estimatedMonthlyVisits[
-            Object.keys(a.estimatedMonthlyVisits)[0]
-          ]
+          b.estimatedMonthlyVisits[bLatestMonth] -
+          a.estimatedMonthlyVisits[aLatestMonth]
         );
       }
       return a.Name.localeCompare(b.Name);
     });
+
+  console.log("Filtered sportsbooks:", filteredSportsbooks);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
 
   // Get unique countries from all sportsbooks
   const uniqueCountries = Array.from(
@@ -69,18 +77,9 @@ const Index = () => {
     )
   );
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900" />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
-      <Hero onSearch={setSearchQuery} />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <Select
             value={selectedCountry}
@@ -121,7 +120,7 @@ const Index = () => {
             <SportsbookCard key={sportsbook.Name} {...sportsbook} />
           ))}
         </div>
-      </main>
+      </div>
     </div>
   );
 };

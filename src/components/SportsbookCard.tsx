@@ -9,8 +9,14 @@ export const SportsbookCard = ({
   estimatedMonthlyVisits,
   topCountries,
 }: Sportsbook) => {
-  const monthlyVisits =
-    estimatedMonthlyVisits[Object.keys(estimatedMonthlyVisits)[0]];
+  // Get the latest month's visits
+  const latestMonth = Object.keys(estimatedMonthlyVisits).sort().pop() || "";
+  const monthlyVisits = estimatedMonthlyVisits[latestMonth];
+
+  console.log(`Rendering sportsbook: ${Name}`);
+  console.log(`Latest month: ${latestMonth}`);
+  console.log(`Monthly visits: ${monthlyVisits}`);
+  console.log(`Top countries:`, topCountries);
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
@@ -34,7 +40,7 @@ export const SportsbookCard = ({
 
         <div className="space-y-2">
           <h4 className="font-semibold text-sm text-gray-500">Top Countries</h4>
-          {topCountries.slice(0, 5).map((country) => (
+          {topCountries.map((country) => (
             <div
               key={country.countryCode}
               className="flex items-center justify-between"

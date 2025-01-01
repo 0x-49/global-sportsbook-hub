@@ -4,13 +4,35 @@
     "Description": "Leading online sportsbook in Romania",
     "LogoIcon": "https://example.com/logo.png",
     "estimatedMonthlyVisits": {
-      "2024-09-01": 75640924
+      "2024-01-01": 75640924,
+      "2024-02-01": 78234567,
+      "2024-03-01": 80123456
     },
     "topCountries": [
       {
         "countryCode": "BR",
         "countryName": "Brazil",
         "visitsShare": 0.993134885
+      },
+      {
+        "countryCode": "PT",
+        "countryName": "Portugal",
+        "visitsShare": 0.003134885
+      },
+      {
+        "countryCode": "ES",
+        "countryName": "Spain",
+        "visitsShare": 0.002134885
+      },
+      {
+        "countryCode": "MX",
+        "countryName": "Mexico",
+        "visitsShare": 0.001134885
+      },
+      {
+        "countryCode": "AR",
+        "countryName": "Argentina",
+        "visitsShare": 0.000434885
       }
     ]
   }
