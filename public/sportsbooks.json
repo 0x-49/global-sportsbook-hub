@@ -1,8 +1,45 @@
 [
   {
+    "Name": "Bet365",
+    "Description": "Leading global online sports betting platform",
+    "LogoIcon": "https://example.com/bet365-logo.png",
+    "estimatedMonthlyVisits": {
+      "2024-01-01": 128640924,
+      "2024-02-01": 132234567,
+      "2024-03-01": 135123456
+    },
+    "topCountries": [
+      {
+        "countryCode": "GB",
+        "countryName": "United Kingdom",
+        "visitsShare": 0.453134885
+      },
+      {
+        "countryCode": "DE",
+        "countryName": "Germany",
+        "visitsShare": 0.203134885
+      },
+      {
+        "countryCode": "IT",
+        "countryName": "Italy",
+        "visitsShare": 0.152134885
+      },
+      {
+        "countryCode": "ES",
+        "countryName": "Spain",
+        "visitsShare": 0.101134885
+      },
+      {
+        "countryCode": "BR",
+        "countryName": "Brazil",
+        "visitsShare": 0.090434885
+      }
+    ]
+  },
+  {
     "Name": "Betnacional",
-    "Description": "Leading online sportsbook in Romania",
-    "LogoIcon": "https://example.com/logo.png",
+    "Description": "Leading online sportsbook in Brazil",
+    "LogoIcon": "https://example.com/betnacional-logo.png",
     "estimatedMonthlyVisits": {
       "2024-01-01": 75640924,
       "2024-02-01": 78234567,
@@ -33,6 +70,43 @@
         "countryCode": "AR",
         "countryName": "Argentina",
         "visitsShare": 0.000434885
+      }
+    ]
+  },
+  {
+    "Name": "1xBet",
+    "Description": "International online betting and gaming company",
+    "LogoIcon": "https://example.com/1xbet-logo.png",
+    "estimatedMonthlyVisits": {
+      "2024-01-01": 95640924,
+      "2024-02-01": 98234567,
+      "2024-03-01": 100123456
+    },
+    "topCountries": [
+      {
+        "countryCode": "RU",
+        "countryName": "Russia",
+        "visitsShare": 0.453134885
+      },
+      {
+        "countryCode": "UA",
+        "countryName": "Ukraine",
+        "visitsShare": 0.203134885
+      },
+      {
+        "countryCode": "KZ",
+        "countryName": "Kazakhstan",
+        "visitsShare": 0.152134885
+      },
+      {
+        "countryCode": "BY",
+        "countryName": "Belarus",
+        "visitsShare": 0.101134885
+      },
+      {
+        "countryCode": "UZ",
+        "countryName": "Uzbekistan",
+        "visitsShare": 0.090434885
       }
     ]
   }
