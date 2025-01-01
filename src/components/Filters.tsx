@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
@@ -34,12 +35,12 @@ export const Filters = ({
     return `https://flagcdn.com/w20/${countryCode.toLowerCase()}.png`;
   };
 
-  const FlagImage = ({ code }: { code: string }) => {
+  const CountryFlag = ({ code }: { code: string }) => {
     const [imgError, setImgError] = useState(false);
     
     if (!code || imgError) {
       return (
-        <span className="w-4 h-4 bg-gray揽200 rounded flex items-center justify-center text-xs">
+        <span className="w-4 h-4 bg-gray-200 rounded flex items-center justify-center text-xs">
           {code?.slice(0, 2)}
         </span>
       );
@@ -87,7 +88,7 @@ export const Filters = ({
             {selectedCountry ? (
               <div className="flex items-center gap-2">
                 {selectedCountry !== "all" && (
-                  <FlagImage code={selectedCountry} />
+                  <CountryFlag code={selectedCountry} />
                 )}
                 {availableCountries.find(c => c.code === selectedCountry)?.name || "All Countries"}
               </div>
@@ -133,7 +134,7 @@ export const Filters = ({
                     )}
                   />
                   {country.code && (
-                    <FlagImage code={country.code} />
+                    <CountryFlag code={country.code} />
                   )}
                   {country.name}
                 </CommandItem>

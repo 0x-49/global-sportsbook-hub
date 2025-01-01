@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sportsbooks from '../public/sportsbooks.json' assert { type: "json" };
@@ -115,8 +115,8 @@ async function main() {
   const outputDir = path.join(__dirname, '..', 'public', 'countries');
   
   // Create output directory if it doesn't exist
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
+  if (!(await fs.stat(outputDir).catch(() => null))) {
+    await fs.mkdir(outputDir, { recursive: true });
   }
 
   const countries = getCountriesFromSportsbooks(sportsbooks as unknown as Sportsbook[]);
@@ -127,7 +127,7 @@ async function main() {
     if (topSportsbooks.length > 0) {
       const markdown = generateCountryMarkdown(countryCode, topSportsbooks);
       const outputPath = path.join(outputDir, `${countryCode.toLowerCase()}.md`);
-      fs.writeFileSync(outputPath, markdown);
+      await fs.writeFile(outputPath, markdown);
       console.log(`Generated page for ${countryCode} at ${outputPath}`);
     }
   }
