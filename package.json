@@ -12,7 +12,8 @@
     "server": "tsx server.ts",
     "dev:all": "concurrently \"npm run dev\" \"npm run server\"",
     "download-descriptions": "tsx scripts/download-descriptions.ts",
-    "update-urls": "tsx scripts/update-description-urls.ts"
+    "update-urls": "tsx scripts/update-description-urls.ts",
+    "generate-country-pages": "tsx scripts/generateCountryPages.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
