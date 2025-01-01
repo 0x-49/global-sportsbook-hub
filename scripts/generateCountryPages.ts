@@ -1,6 +1,10 @@
 import fs from 'fs';
 import path from 'path';
-import sportsbooks from '../public/sportsbooks.json';
+import { fileURLToPath } from 'url';
+import sportsbooks from '../public/sportsbooks.json' assert { type: "json" };
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface TopCountry {
   countryCode: string;
@@ -16,30 +20,36 @@ interface Sportsbook {
   LogoIcon?: string;
   domainName: string;
   "estimatedMonthlyVisits/2024-11-01": number;
-  topCountries: TopCountry[];
+  [key: `topCountries/${number}/countryCode`]: string;
+  [key: `topCountries/${number}/countryName`]: string;
+  [key: `topCountries/${number}/visitsShare`]: number;
 }
 
-function getCountriesFromSportsbooks(sportsbooks: Sportsbook[]): Set<string> {
+function getCountriesFromSportsbooks(sportsbooksList: Sportsbook[]): Set<string> {
   const countries = new Set<string>();
   
-  sportsbooks.forEach(sportsbook => {
-    sportsbook.topCountries?.forEach(country => {
-      if (country.countryCode) {
-        countries.add(country.countryCode);
+  sportsbooksList.forEach(sportsbook => {
+    for (let i = 0; i < 5; i++) {
+      const countryCode = sportsbook[`topCountries/${i}/countryCode`];
+      if (countryCode) {
+        countries.add(countryCode);
       }
-    });
+    }
   });
 
   return countries;
 }
 
-function getTopSportsbooksForCountry(sportsbooks: Sportsbook[], countryCode: string): Sportsbook[] {
-  return sportsbooks
-    .filter(sportsbook => 
-      sportsbook.topCountries?.some(country => 
-        country.countryCode.toLowerCase() === countryCode.toLowerCase()
-      )
-    )
+function getTopSportsbooksForCountry(sportsbooksList: Sportsbook[], countryCode: string): Sportsbook[] {
+  return sportsbooksList
+    .filter(sportsbook => {
+      for (let i = 0; i < 5; i++) {
+        if (sportsbook[`topCountries/${i}/countryCode`]?.toLowerCase() === countryCode.toLowerCase()) {
+          return true;
+        }
+      }
+      return false;
+    })
     .sort((a, b) => {
       const aTraffic = Number(a["estimatedMonthlyVisits/2024-11-01"]) || 0;
       const bTraffic = Number(b["estimatedMonthlyVisits/2024-11-01"]) || 0;
@@ -49,9 +59,16 @@ function getTopSportsbooksForCountry(sportsbooks: Sportsbook[], countryCode: str
 }
 
 function generateCountryMarkdown(countryCode: string, topSportsbooks: Sportsbook[]): string {
-  const countryName = topSportsbooks[0]?.topCountries.find(
-    c => c.countryCode.toLowerCase() === countryCode.toLowerCase()
-  )?.countryName || countryCode;
+  let countryName = countryCode;
+  for (const sb of topSportsbooks) {
+    for (let i = 0; i < 5; i++) {
+      if (sb[`topCountries/${i}/countryCode`]?.toLowerCase() === countryCode.toLowerCase()) {
+        countryName = sb[`topCountries/${i}/countryName`];
+        break;
+      }
+    }
+    if (countryName !== countryCode) break;
+  }
 
   const totalTraffic = topSportsbooks.reduce(
     (sum, sb) => sum + (Number(sb["estimatedMonthlyVisits/2024-11-01"]) || 0),
@@ -71,13 +88,17 @@ Our analysis is based on real traffic data and user engagement metrics.
 ## Top Sportsbooks
 
 ${topSportsbooks.map((sb, index) => {
-  const countrySpecificShare = sb.topCountries.find(
-    c => c.countryCode.toLowerCase() === countryCode.toLowerCase()
-  )?.visitsShare || 0;
+  let countryShare = 0;
+  for (let i = 0; i < 5; i++) {
+    if (sb[`topCountries/${i}/countryCode`]?.toLowerCase() === countryCode.toLowerCase()) {
+      countryShare = Number(sb[`topCountries/${i}/visitsShare`]) || 0;
+      break;
+    }
+  }
   
   return `### ${index + 1}. ${sb.Name}
 - Monthly Visits: ${Number(sb["estimatedMonthlyVisits/2024-11-01"]).toLocaleString()}
-- Market Share in ${countryName}: ${(countrySpecificShare * 100).toFixed(1)}%
+- Market Share in ${countryName}: ${(countryShare * 100).toFixed(1)}%
 - ${sb.Description}
 `;
 }).join('\n')}
@@ -91,26 +112,27 @@ Last Updated: ${new Date().toISOString().split('T')[0]}
 }
 
 async function main() {
-  const outputDir = path.join(__dirname, '../public/countries');
+  const outputDir = path.join(__dirname, '..', 'public', 'countries');
   
   // Create output directory if it doesn't exist
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
-  const countries = getCountriesFromSportsbooks(sportsbooks as Sportsbook[]);
+  const countries = getCountriesFromSportsbooks(sportsbooks as unknown as Sportsbook[]);
+  console.log(`Found ${countries.size} countries`);
 
   for (const countryCode of countries) {
-    const topSportsbooks = getTopSportsbooksForCountry(sportsbooks as Sportsbook[], countryCode);
+    const topSportsbooks = getTopSportsbooksForCountry(sportsbooks as unknown as Sportsbook[], countryCode);
     if (topSportsbooks.length > 0) {
       const markdown = generateCountryMarkdown(countryCode, topSportsbooks);
-      fs.writeFileSync(
-        path.join(outputDir, `${countryCode.toLowerCase()}.md`),
-        markdown
-      );
-      console.log(`Generated page for ${countryCode}`);
+      const outputPath = path.join(outputDir, `${countryCode.toLowerCase()}.md`);
+      fs.writeFileSync(outputPath, markdown);
+      console.log(`Generated page for ${countryCode} at ${outputPath}`);
     }
   }
+
+  console.log('Country pages generation complete!');
 }
 
 main().catch(console.error);

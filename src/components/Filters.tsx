@@ -22,7 +22,37 @@ export const Filters = ({
   const [open, setOpen] = useState(false);
 
   const getCountryFlag = (countryCode: string) => {
-    return countryCode ? `https://flagcdn.com/w20/${countryCode.toLowerCase()}.png` : '';
+    if (!countryCode) return '';
+    
+    // Validate country code format
+    if (!/^[A-Z]{2}$/.test(countryCode)) {
+      console.warn(`Invalid country code: ${countryCode}`);
+      return '';
+    }
+
+    // Return flag URL with fallback to local image if CDN fails
+    return `https://flagcdn.com/w20/${countryCode.toLowerCase()}.png`;
+  };
+
+  const FlagImage = ({ code }: { code: string }) => {
+    const [imgError, setImgError] = useState(false);
+    
+    if (!code || imgError) {
+      return (
+        <span className="w-4 h-4 bg-gray揽200 rounded flex items-center justify-center text-xs">
+          {code?.slice(0, 2)}
+        </span>
+      );
+    }
+
+    return (
+      <img
+        src={getCountryFlag(code)}
+        alt=""
+        className="w-4 h-4 object-contain"
+        onError={() => setImgError(true)}
+      />
+    );
   };
 
   const sortedCountries = [...availableCountries].sort((a, b) => a.name.localeCompare(b.name));
@@ -57,11 +87,7 @@ export const Filters = ({
             {selectedCountry ? (
               <div className="flex items-center gap-2">
                 {selectedCountry !== "all" && (
-                  <img
-                    src={getCountryFlag(selectedCountry)}
-                    alt=""
-                    className="w-4 h-4 object-contain"
-                  />
+                  <FlagImage code={selectedCountry} />
                 )}
                 {availableCountries.find(c => c.code === selectedCountry)?.name || "All Countries"}
               </div>
@@ -107,11 +133,7 @@ export const Filters = ({
                     )}
                   />
                   {country.code && (
-                    <img
-                      src={getCountryFlag(country.code)}
-                      alt=""
-                      className="w-4 h-4 object-contain"
-                    />
+                    <FlagImage code={country.code} />
                   )}
                   {country.name}
                 </CommandItem>
