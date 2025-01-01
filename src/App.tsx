@@ -10,6 +10,7 @@ import { Hero } from "@/components/Hero";
 import { Filters } from "@/components/Filters";
 import { SportsbookCard } from "@/components/SportsbookCard";
 import { Button } from "@/components/ui/button";
+import { Footer } from "@/components/Footer";
 import { Suspense, lazy, useState, useMemo } from 'react';
 import { slugify } from '@/lib/utils';
 import sportsbooks from '../public/sportsbooks.json';
@@ -90,59 +91,62 @@ export default function App() {
           <BrowserRouter>
             <div className="min-h-screen bg-background">
               <Navbar />
-              <Suspense fallback={
-                <div className="container mx-auto px-4 py-12">
-                  <div className="animate-pulse space-y-4">
-                    <div className="h-8 bg-muted rounded w-3/4"></div>
-                    <div className="h-4 bg-muted rounded"></div>
-                    <div className="h-4 bg-muted rounded w-5/6"></div>
-                  </div>
-                </div>
-              }>
-                <Routes>
-                  <Route path="/" element={
-                    <div className="container mx-auto px-4 py-8">
-                      <Hero onSearch={setSearchQuery} />
-                      <Filters
-                        onSortChange={setSortBy}
-                        onCountryFilter={setSelectedCountry}
-                        availableCountries={availableCountries}
-                        selectedCountry={selectedCountry}
-                      />
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {filteredSportsbooks.slice(0, visibleItems).map((sportsbook) => (
-                          <SportsbookCard 
-                            key={sportsbook.UniqueID}
-                            UniqueID={sportsbook.UniqueID}
-                            Name={sportsbook.Name}
-                            Description={sportsbook.Description}
-                            LogoIcon={sportsbook.LogoIcon}
-                            URL={sportsbook.URL}
-                            descriptionsURL={`/sportsbook/${slugify(sportsbook.Name)}`}
-                            estimatedMonthlyVisits={{
-                              "2024-09-01": Number(sportsbook["estimatedMonthlyVisits/2024-09-01"]) || 0,
-                              "2024-10-01": Number(sportsbook["estimatedMonthlyVisits/2024-10-01"]) || 0,
-                              "2024-11-01": Number(sportsbook["estimatedMonthlyVisits/2024-11-01"]) || 0
-                            }}
-                            topCountries={sportsbook.topCountries}
-                          />
-                        ))}
-                      </div>
-                      {visibleItems < filteredSportsbooks.length && (
-                        <div className="flex justify-center mt-8">
-                          <Button onClick={handleLoadMore} size="lg">
-                            Load More Sportsbooks
-                          </Button>
-                        </div>
-                      )}
+              <main className="min-h-screen">
+                <Suspense fallback={
+                  <div className="container mx-auto px-4 py-12">
+                    <div className="animate-pulse space-y-4">
+                      <div className="h-8 bg-muted rounded w-3/4"></div>
+                      <div className="h-4 bg-muted rounded"></div>
+                      <div className="h-4 bg-muted rounded w-5/6"></div>
                     </div>
-                  } />
-                  <Route path="/sportsbook/:slug" element={<SportsbookDetails />} />
-                  <Route path="/about" element={<About />} />
-                  <Route path="/country/:code" element={<CountryPage />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Suspense>
+                  </div>
+                }>
+                  <Routes>
+                    <Route path="/" element={
+                      <div className="container mx-auto px-4 py-8">
+                        <Hero onSearch={setSearchQuery} />
+                        <Filters
+                          onSortChange={setSortBy}
+                          onCountryFilter={setSelectedCountry}
+                          availableCountries={availableCountries}
+                          selectedCountry={selectedCountry}
+                        />
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {filteredSportsbooks.slice(0, visibleItems).map((sportsbook) => (
+                            <SportsbookCard 
+                              key={sportsbook.UniqueID}
+                              UniqueID={sportsbook.UniqueID}
+                              Name={sportsbook.Name}
+                              Description={sportsbook.Description}
+                              LogoIcon={sportsbook.LogoIcon}
+                              URL={sportsbook.URL}
+                              descriptionsURL={`/sportsbook/${slugify(sportsbook.Name)}`}
+                              estimatedMonthlyVisits={{
+                                "2024-09-01": Number(sportsbook["estimatedMonthlyVisits/2024-09-01"]) || 0,
+                                "2024-10-01": Number(sportsbook["estimatedMonthlyVisits/2024-10-01"]) || 0,
+                                "2024-11-01": Number(sportsbook["estimatedMonthlyVisits/2024-11-01"]) || 0
+                              }}
+                              topCountries={sportsbook.topCountries}
+                            />
+                          ))}
+                        </div>
+                        {visibleItems < filteredSportsbooks.length && (
+                          <div className="flex justify-center mt-8">
+                            <Button onClick={handleLoadMore} size="lg">
+                              Load More Sportsbooks
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    } />
+                    <Route path="/sportsbook/:slug" element={<SportsbookDetails />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/country/:code" element={<CountryPage />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </Suspense>
+              </main>
+              <Footer />
             </div>
           </BrowserRouter>
           <Toaster />
