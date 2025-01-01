@@ -1,11 +1,28 @@
-
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+interface Country {
+  code: string;
+  name: string;
+}
+
+const availableCountries: Country[] = [
+  { code: "US", name: "United States" },
+  { code: "GB", name: "United Kingdom" },
+  { code: "CA", name: "Canada" },
+  { code: "AU", name: "Australia" },
+  { code: "DE", name: "Germany" },
+  { code: "FR", name: "France" },
+  { code: "ES", name: "Spain" },
+  { code: "IT", name: "Italy" },
+  { code: "BR", name: "Brazil" },
+  { code: "JP", name: "Japan" },
+];
 
 interface FiltersProps {
   onSortChange: (value: "traffic" | "name") => void;
@@ -21,17 +38,9 @@ export const Filters = ({
   selectedCountry,
 }: FiltersProps) => {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
 
-  const getCountryFlag = (countryCode: string) => {
-    if (!countryCode) return '';
-    
-    // Validate country code format
-    if (!/^[A-Z]{2}$/.test(countryCode)) {
-      console.warn(`Invalid country code: ${countryCode}`);
-      return '';
-    }
-
-    // Return flag URL with fallback to local image if CDN fails
+  const getFlagUrl = (countryCode: string) => {
     return `https://flagcdn.com/w20/${countryCode.toLowerCase()}.png`;
   };
 
@@ -48,15 +57,23 @@ export const Filters = ({
 
     return (
       <img
-        src={getCountryFlag(code)}
-        alt=""
-        className="w-4 h-4 object-contain"
+        src={getFlagUrl(code)}
+        alt={`${code} flag`}
+        className="w-4 h-4 rounded"
         onError={() => setImgError(true)}
       />
     );
   };
 
-  const sortedCountries = [...availableCountries].sort((a, b) => a.name.localeCompare(b.name));
+  const handleCountrySelect = (country: string) => {
+    onCountryFilter(country);
+    setOpen(false);
+    if (country === "all") {
+      navigate("/");
+    } else {
+      navigate(`/country/${country.toLowerCase()}`);
+    }
+  };
 
   return (
     <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -85,16 +102,16 @@ export const Filters = ({
             aria-expanded={open}
             className="w-full sm:w-[250px] justify-between"
           >
-            {selectedCountry ? (
-              <div className="flex items-center gap-2">
-                {selectedCountry !== "all" && (
-                  <CountryFlag code={selectedCountry} />
-                )}
-                {availableCountries.find(c => c.code === selectedCountry)?.name || "All Countries"}
-              </div>
-            ) : (
-              "Select Country..."
-            )}
+            <div className="flex items-center gap-2">
+              {selectedCountry !== "all" && (
+                <CountryFlag code={selectedCountry} />
+              )}
+              <span>
+                {selectedCountry === "all"
+                  ? "All Countries"
+                  : availableCountries.find(c => c.code === selectedCountry)?.name || "Select Country"}
+              </span>
+            </div>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -104,10 +121,9 @@ export const Filters = ({
             <CommandEmpty>No country found.</CommandEmpty>
             <CommandGroup className="max-h-[300px] overflow-y-auto">
               <CommandItem
-                onSelect={() => {
-                  onCountryFilter("all");
-                  setOpen(false);
-                }}
+                key="all"
+                value="all"
+                onSelect={() => handleCountrySelect("all")}
                 className="flex items-center gap-2"
               >
                 <Check
@@ -118,13 +134,11 @@ export const Filters = ({
                 />
                 All Countries
               </CommandItem>
-              {sortedCountries.map((country) => (
+              {availableCountries.map((country) => (
                 <CommandItem
                   key={country.code}
-                  onSelect={() => {
-                    onCountryFilter(country.code);
-                    setOpen(false);
-                  }}
+                  value={country.code}
+                  onSelect={() => handleCountrySelect(country.code)}
                   className="flex items-center gap-2"
                 >
                   <Check
