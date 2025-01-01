@@ -1,29 +1,53 @@
-import { Star } from "lucide-react";
+import { Flag } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Sportsbook } from "@/types/sportsbook";
 
-interface SportsbookProps {
-  name: string;
-  rating: number;
-  logo: string;
-  description: string;
-  bonus: string;
-}
+export const SportsbookCard = ({
+  Name,
+  Description,
+  LogoIcon,
+  estimatedMonthlyVisits,
+  topCountries,
+}: Sportsbook) => {
+  const monthlyVisits =
+    estimatedMonthlyVisits[Object.keys(estimatedMonthlyVisits)[0]];
 
-export const SportsbookCard = ({ name, rating, logo, description, bonus }: SportsbookProps) => {
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow animate-fade-in">
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <img src={logo} alt={name} className="h-12 w-auto" />
-          <div className="flex items-center">
-            <Star className="h-5 w-5 text-yellow-400 fill-current" />
-            <span className="ml-1 font-semibold">{rating}</span>
+          <img
+            src={LogoIcon}
+            alt={Name}
+            className="h-12 w-auto object-contain"
+          />
+          <div className="text-right">
+            <p className="text-sm text-gray-500">Monthly Visits</p>
+            <p className="font-semibold">
+              {monthlyVisits.toLocaleString()}
+            </p>
           </div>
         </div>
-        <h3 className="text-xl font-bold mb-2">{name}</h3>
-        <p className="text-gray-600 mb-4 line-clamp-2">{description}</p>
-        <div className="bg-green-50 p-3 rounded-lg">
-          <p className="text-accent font-semibold text-center">{bonus}</p>
+        
+        <h3 className="text-xl font-bold mb-2">{Name}</h3>
+        <p className="text-gray-600 mb-4 line-clamp-2">{Description}</p>
+
+        <div className="space-y-2">
+          <h4 className="font-semibold text-sm text-gray-500">Top Countries</h4>
+          {topCountries.slice(0, 5).map((country) => (
+            <div
+              key={country.countryCode}
+              className="flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <Flag className="h-4 w-4" />
+                <span className="text-sm">{country.countryName}</span>
+              </div>
+              <span className="text-sm font-medium">
+                {(country.visitsShare * 100).toFixed(1)}%
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </Card>

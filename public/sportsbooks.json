@@ -1,0 +1,17 @@
+[
+  {
+    "Name": "Betnacional",
+    "Description": "Leading online sportsbook in Romania",
+    "LogoIcon": "https://example.com/logo.png",
+    "estimatedMonthlyVisits": {
+      "2024-09-01": 75640924
+    },
+    "topCountries": [
+      {
+        "countryCode": "BR",
+        "countryName": "Brazil",
+        "visitsShare": 0.993134885
+      }
+    ]
+  }
+]
