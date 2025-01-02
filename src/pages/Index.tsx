@@ -17,6 +17,7 @@ const fetchSportsbooks = async (): Promise<Sportsbook[]> => {
 
 const Index = () => {
   const [sortBy, setSortBy] = useState<"traffic" | "name">("traffic");
+  const [selectedCountry, setSelectedCountry] = useState<string>("");
 
   const { data: sportsbooks, isLoading, error } = useQuery({
     queryKey: ["sportsbooks"],
@@ -26,6 +27,16 @@ const Index = () => {
   console.log("Current sportsbooks data:", sportsbooks);
   console.log("Loading state:", isLoading);
   console.log("Error state:", error);
+
+  // Get available countries from sportsbooks
+  const availableCountries = sportsbooks?.flatMap(sb => 
+    sb.topCountries?.map(tc => ({
+      code: tc.countryCode,
+      name: tc.countryName
+    })) || []
+  ).filter((country, index, self) => 
+    index === self.findIndex(c => c.code === country.code)
+  ) || [];
 
   if (isLoading) {
     return (
@@ -43,18 +54,11 @@ const Index = () => {
     );
   }
 
-  // Ensure sportsbooks is an array before processing
   const sortedSportsbooks = [...(sportsbooks || [])].sort((a, b) => {
     if (sortBy === "traffic") {
-      // Get the latest month for each sportsbook
-      const aMonths = Object.keys(a.estimatedMonthlyVisits || {});
-      const bMonths = Object.keys(b.estimatedMonthlyVisits || {});
-      const aLatestMonth = aMonths.length ? aMonths[aMonths.length - 1] : "";
-      const bLatestMonth = bMonths.length ? bMonths[bMonths.length - 1] : "";
-      
       return (
-        (b.estimatedMonthlyVisits?.[bLatestMonth] || 0) -
-        (a.estimatedMonthlyVisits?.[aLatestMonth] || 0)
+        (b["estimatedMonthlyVisits/2024-11-01"] || 0) -
+        (a["estimatedMonthlyVisits/2024-11-01"] || 0)
       );
     }
     return a.Name.localeCompare(b.Name);
@@ -63,11 +67,30 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Filters onSortChange={setSortBy} />
+        <Filters 
+          onSortChange={setSortBy} 
+          onCountryFilter={setSelectedCountry}
+          availableCountries={availableCountries}
+          selectedCountry={selectedCountry}
+        />
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {sortedSportsbooks.map((sportsbook) => (
-            <SportsbookCard key={sportsbook.Name} {...sportsbook} />
+            <SportsbookCard 
+              key={sportsbook.UniqueID}
+              UniqueID={sportsbook.UniqueID}
+              Name={sportsbook.Name}
+              Description={sportsbook.Description}
+              LogoIcon={sportsbook.LogoIcon}
+              URL={sportsbook.URL}
+              descriptionsURL={sportsbook["Descriptions Object URL"]}
+              estimatedMonthlyVisits={{
+                "2024-09-01": sportsbook["estimatedMonthlyVisits/2024-09-01"],
+                "2024-10-01": sportsbook["estimatedMonthlyVisits/2024-10-01"],
+                "2024-11-01": sportsbook["estimatedMonthlyVisits/2024-11-01"]
+              }}
+              topCountries={sportsbook.topCountries || []}
+            />
           ))}
         </div>
       </div>

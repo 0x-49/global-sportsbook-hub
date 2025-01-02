@@ -3,11 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { marked } from "marked";
 import { Card } from "@/components/ui/card";
 import { SportsbookCard } from "@/components/SportsbookCard";
-import sportsbooks from "../../public/sportsbooks.json";
+import { Sportsbook } from "@/types/sportsbook";
 import { slugify } from "@/lib/utils";
+
+// Import the JSON directly
+import sportsbooksData from "../../public/sportsbooks.json";
 
 export default function CountryPage() {
   const { code } = useParams<{ code: string }>();
+  const sportsbooks = sportsbooksData as Sportsbook[];
 
   const { data: countryContent, isLoading: isContentLoading } = useQuery({
     queryKey: ["country-content", code],
@@ -37,7 +41,7 @@ export default function CountryPage() {
     return bTraffic - aTraffic;
   });
 
-  const countryName = countrySportsbooks[0]?.topCountries.find(
+  const countryName = countrySportsbooks[0]?.topCountries?.find(
     c => c.countryCode.toLowerCase() === code?.toLowerCase()
   )?.countryName || code;
 
