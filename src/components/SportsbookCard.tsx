@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import * as flags from "country-flag-icons/react/3x2";
 import { ExternalLink, ChevronDown, ChevronUp, FileText } from "lucide-react";
 
 interface TransformedSportsbook {
@@ -85,42 +84,29 @@ export const SportsbookCard = ({
 
         <div className="space-y-2 mb-6">
           <h4 className="font-semibold text-sm text-gray-500">Top Countries</h4>
-          {topCountries.map((country) => {
-            const countryCode = country.countryCode?.toUpperCase();
-            // @ts-ignore - Dynamic access to flag components
-            const FlagComponent = countryCode && flags[countryCode] ? flags[countryCode] : null;
-
-            return (
-              <div
-                key={country.countryName}
-                className="flex items-center justify-between py-1"
-              >
-                <div className="flex items-center gap-2">
-                  {FlagComponent ? (
-                    <FlagComponent 
-                      className="w-5 h-auto" 
-                      title={country.countryName}
-                    />
-                  ) : (
-                    <span className="w-5 h-3.5 bg-gray-200 rounded flex items-center justify-center text-xs">
-                      {country.countryName.slice(0, 2)}
-                    </span>
-                  )}
-                  <span className="text-sm">{country.countryName}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium">
-                    {(country.visitsShare * 100).toFixed(1)}%
-                  </span>
-                  {monthlyVisits && (
-                    <span className="text-xs text-gray-500">
-                      ({formatTraffic(monthlyVisits * country.visitsShare)})
-                    </span>
-                  )}
-                </div>
+          {(topCountries || []).map((country) => (
+            <div
+              key={country.countryName}
+              className="flex items-center justify-between py-1"
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-3.5 bg-gray-200 rounded flex items-center justify-center text-xs">
+                  {country.countryName.slice(0, 2)}
+                </span>
+                <span className="text-sm">{country.countryName}</span>
               </div>
-            );
-          })}
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">
+                  {(country.visitsShare * 100).toFixed(1)}%
+                </span>
+                {monthlyVisits && (
+                  <span className="text-xs text-gray-500">
+                    ({formatTraffic(monthlyVisits * country.visitsShare)})
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="flex gap-2">
