@@ -33,12 +33,18 @@ const formatTraffic = (visits: number) => {
 };
 
 // Helper function to normalize country codes
-const normalizeCountryCode = (code: string): string => {
+const normalizeCountryCode = (code: string | undefined): string => {
+  if (!code) return '';
+  
   // Handle special cases
   const specialCases: { [key: string]: string } = {
     'UK': 'GB',
     'TZ': 'TZ',
     'US': 'US',
+    'ENG': 'GB',
+    'SCO': 'GB',
+    'WLS': 'GB',
+    'NIR': 'GB',
     // Add more special cases as needed
   };
 
@@ -101,9 +107,9 @@ export const SportsbookCard = ({
           <h4 className="font-semibold text-sm text-gray-500">Top Countries</h4>
           {(topCountries || []).map((country) => {
             const countryCode = normalizeCountryCode(country.countryCode);
-            console.log('Country code:', countryCode, 'Available flag:', !!flags[countryCode]);
+            console.log('Processing country:', country.countryName, 'Code:', countryCode);
             // @ts-ignore - Dynamic access to flag components
-            const FlagComponent = flags[countryCode];
+            const FlagComponent = countryCode ? flags[countryCode] : null;
 
             return (
               <div
