@@ -32,6 +32,20 @@ const formatTraffic = (visits: number) => {
   return visits.toString();
 };
 
+// Helper function to normalize country codes
+const normalizeCountryCode = (code: string): string => {
+  // Handle special cases
+  const specialCases: { [key: string]: string } = {
+    'UK': 'GB',
+    'TZ': 'TZ',
+    'US': 'US',
+    // Add more special cases as needed
+  };
+
+  const normalized = code.toUpperCase();
+  return specialCases[normalized] || normalized;
+};
+
 export const SportsbookCard = ({
   Name,
   Description,
@@ -86,9 +100,10 @@ export const SportsbookCard = ({
         <div className="space-y-2 mb-6">
           <h4 className="font-semibold text-sm text-gray-500">Top Countries</h4>
           {(topCountries || []).map((country) => {
-            const countryCode = country.countryCode?.toUpperCase();
+            const countryCode = normalizeCountryCode(country.countryCode);
+            console.log('Country code:', countryCode, 'Available flag:', !!flags[countryCode]);
             // @ts-ignore - Dynamic access to flag components
-            const FlagComponent = countryCode && flags[countryCode] ? flags[countryCode] : null;
+            const FlagComponent = flags[countryCode];
 
             return (
               <div
